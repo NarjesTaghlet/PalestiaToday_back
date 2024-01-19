@@ -1,18 +1,25 @@
-import {ConflictException, Injectable} from '@nestjs/common';
+import {ConflictException, Injectable, NotFoundException, Request, UnauthorizedException} from '@nestjs/common';
 import { RegisterUserDto } from './dto/register-user.dto';
-import { UpdateUserDto } from './dto/update-user.dto';
-import {Repository} from "typeorm";
+import { LoginCredentialsDto } from './dto/login-credentials.dto';
+import { Repository} from "typeorm";
 import {User} from "./entities/user.entity";
 import {InjectRepository} from "@nestjs/typeorm";
 import * as bcrypt from 'bcrypt';
 import {ExceptionHandler} from "@nestjs/core/errors/exception-handler";
 import {Role_userEnum} from "../enums/role_user.enum";
+import {AddArticleDto} from "../article/dto/add-article.dto";
+import {Article} from "../article/entities/article.entity";
+import {JwtService} from "@nestjs/jwt";
+import {ArticleService} from "../article/article.service";
+
 @Injectable()
 export class UserService {
 constructor(
    @InjectRepository(User)
    private UserRepository : Repository<User>,
-) {
+   private jwtService : JwtService,
+)
+{
 }
   async Signup(datauser : RegisterUserDto) : Promise<User>
   {
@@ -29,7 +36,7 @@ constructor(
     //sauvegarder notre user
 
 
-  user.role=Role_userEnum.ABONNEE;
+    user.role=Role_userEnum.ABONNEE;
     try{
       await this.UserRepository.save(user);
     }catch(e){
@@ -38,6 +45,54 @@ constructor(
   return  user ;
 
   }
+
+  async login(credentials :LoginCredentialsDto) {
+
+//recuperer le login credentials (username et passwor)
+    const {username,password} = credentials ;
+
+    console.log(credentials);
+    //verifier si c est le useer correspopndant
+     const utilisateur = await this.UserRepository.createQueryBuilder("User")
+         .where("User.username = :username or User.email = :username",{username}).getOne()
+    //console.log("hi")
+    //console.log(utilisateur)
+    if (!utilisateur){
+      //si nn declencher erreur
+      throw new  NotFoundException("username ou email erroné ! , veuillez vérifier svp");
+    }
+    //si oui =$c bon
+    //si oui , verifie que mdp correct ou nn
+    const hashedPassword =await bcrypt.hash(password,utilisateur.salt);
+    if(hashedPassword === utilisateur.password)
+    {
+      const payload={
+        username,
+        email : utilisateur.email,
+        role : utilisateur.role
+      }
+      const jwt =await this.jwtService.sign(payload);
+    // on retourne le token au lieu du données
+    return {
+      "access_token" : jwt
+    }
+    }else{
+      throw new NotFoundException("verifier votre username ou votre password !")
+    }
+  }
+
+  /*async ajouter_article(article : AddArticleDto, user : User) : Promise<Article>{
+
+  if (user.role== Role_userEnum.ADMIN){
+    return await this.ArticleService.create(article)
+    console.log("réussie")
+
+  }else {
+    throw new UnauthorizedException("vous n'avez pas le droit")
+  }
+  }
+*/
+
   create(createUserDto: RegisterUserDto) {
     return 'This action adds a new user';
   }
@@ -50,11 +105,16 @@ constructor(
     return `This action returns a #${id} user`;
   }
 
-  update(id: number, updateUserDto: UpdateUserDto) {
+  update(id: number, updateUserDto: LoginCredentialsDto) {
     return `This action updates a #${id} user`;
   }
 
   remove(id: number) {
     return `This action removes a #${id} user`;
+  }
+
+
+  isAdmin(user) {
+    return user.role === Role_userEnum.ADMIN ;
   }
 }

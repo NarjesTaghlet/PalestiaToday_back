@@ -1,6 +1,7 @@
-import {Column, Entity, PrimaryGeneratedColumn} from "typeorm"
+import {Column, Entity, OneToMany, PrimaryGeneratedColumn} from "typeorm"
 import {TimestampEntities} from "../../generics/Timestamp.entities";
 import {Role_userEnum} from "../../enums/role_user.enum";
+import {Interactionarticle} from "../../interactionarticle/entities/interactionarticle.entity";
 
 @Entity('user')
 export class User extends  TimestampEntities{
@@ -31,7 +32,9 @@ export class User extends  TimestampEntities{
     )
     role : string
 
-
+    //un utiisateur peut avoir plusieurs interactions avec un article (un abonneé peut réagir)
+    @OneToMany(() => Interactionarticle, (interaction) => interaction.user)
+    interactions: Interactionarticle[];
 
 
 }

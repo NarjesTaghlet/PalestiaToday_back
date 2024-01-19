@@ -6,6 +6,9 @@ import { UserModule } from './user/user.module';
 import {TypeOrmModule} from "@nestjs/typeorm";
 import {Article} from "./article/entities/article.entity";
 import {User} from "./user/entities/user.entity";
+import { InteractionarticleModule } from './interactionarticle/interactionarticle.module';
+import {Interactionarticle} from "./interactionarticle/entities/interactionarticle.entity";
+import {ConfigModule} from "@nestjs/config";
 
 @Module({
   imports: [ArticleModule, UserModule
@@ -16,9 +19,13 @@ import {User} from "./user/entities/user.entity";
       username: 'root',
       password: '',
       database: 'test',
-      entities: [Article,User],
+      entities: [Article,User,Interactionarticle],
       synchronize: true,
-    }),
+    }), InteractionarticleModule,
+      ConfigModule.forRoot({
+          isGlobal: true,
+
+      })
   ],
   controllers: [AppController],
   providers: [AppService],
