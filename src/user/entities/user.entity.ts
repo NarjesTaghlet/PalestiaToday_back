@@ -7,15 +7,17 @@ import {Interactionarticle} from "../../interactionarticle/entities/interactiona
 export class User extends  TimestampEntities{
     @PrimaryGeneratedColumn()
     id : number
-    @Column()
+    @Column(
+        {
+            unique:true
+        }
+    )
     username : string
     @Column({
         unique:true
     })
     email : string
-    @Column({
-        unique:true
-    })
+    @Column()
     password : string
 
     @Column()

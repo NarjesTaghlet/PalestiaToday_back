@@ -1,6 +1,6 @@
 export enum Role_userEnum{
 ADMIN ='admin',
-ABONNEE='abonné',
+ABONNEE='abonne',
 VISITEUR ='visiteur'
 
 }

@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import {Injectable, NotFoundException, UnauthorizedException} from '@nestjs/common';
 import { AddArticleDto } from './dto/add-article.dto';
 import { UpdateArticleDto } from './dto/update-article.dto';
 import {InjectRepository} from "@nestjs/typeorm";
@@ -32,15 +32,44 @@ export class ArticleService {
     return `This action returns all article`;
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} article`;
+
+
+  async findOneArticle(id: number): Promise<Article | null> {
+    return await this.ArticleRepository.findOneBy({ id });
   }
 
   update(id: number, updateArticleDto: UpdateArticleDto) {
     return `This action updates a #${id} article`;
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} article`;
+  async updateArticle(id: number, article: UpdateArticleDto): Promise<Article> {
+    //On récupére le article d'id id et ensuite on remplace les anciennes valeurs de cet article
+    // par ceux passé en paramètre
+    const newArticle = await this.ArticleRepository.preload({
+      id,
+      ...article
+    });
+    // tester le cas ou le article d'id id n'existe pas
+    if(!newArticle) {
+      throw new NotFoundException(`Article d'id ${id} n'existe pas`);
+    }
+    //sauvgarder la nouvelle entité donc le nouveau cv
+    else{
+      return await this.ArticleRepository.save(newArticle);
+
+    }
+
   }
+  async remove(id: number) {
+    return await this.ArticleRepository.delete(id);
+  }
+  async findArticleById(id: number) {
+    const article = await this.findOneArticle(id);
+    if (!article) {
+      throw new NotFoundException(`L'article d'id ${id} n'existe pas`);
+    }
+    return article;
+  }
+
+
 }

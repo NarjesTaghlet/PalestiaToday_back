@@ -1,18 +1,20 @@
 
-import {IsEmail, IsNotEmpty} from "class-validator";
+import {IsEmail, IsNotEmpty, MinLength} from "class-validator";
+import {errorMessages} from "../../generics/error_messages";
 
 export class RegisterUserDto {
 
 
-    @IsNotEmpty()
+    @IsNotEmpty(
+    )
     username : string
     @IsNotEmpty()
     @IsEmail()
     email : string
 
-    @IsNotEmpty()
+    @IsNotEmpty(
+    )
+    @MinLength(4,{ message: errorMessages.MinError(4) })
     password : string
-
-
 
 }

@@ -9,22 +9,25 @@ import {User} from "./user/entities/user.entity";
 import { InteractionarticleModule } from './interactionarticle/interactionarticle.module';
 import {Interactionarticle} from "./interactionarticle/entities/interactionarticle.entity";
 import {ConfigModule} from "@nestjs/config";
+import * as dotenv from 'dotenv';
+import * as process from "process";
+
+dotenv.config()
 
 @Module({
   imports: [ArticleModule, UserModule
   ,TypeOrmModule.forRoot({
       type: 'mysql',
-      host: 'localhost',
-      port: 3307,
-      username: 'root',
-      password: '',
-      database: 'test',
+      host: process.env.DB_HOST,
+      port: Number(process.env.DB_PORT) ,
+      username: process.env.DB_USERNAME,
+      password: process.env.DB_PASSWORD,
+      database: process.env.DB_NAME,
       entities: [Article,User,Interactionarticle],
       synchronize: true,
     }), InteractionarticleModule,
       ConfigModule.forRoot({
           isGlobal: true,
-
       })
   ],
   controllers: [AppController],

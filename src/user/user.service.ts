@@ -40,7 +40,7 @@ constructor(
     try{
       await this.UserRepository.save(user);
     }catch(e){
-      throw new ConflictException(`User et mdp ne sont pas uniques !!`);
+      throw new ConflictException(`Nom d'utilisateur ou email ne sont pas uniques !!`);
     }
   return  user ;
 
@@ -71,7 +71,7 @@ constructor(
         email : utilisateur.email,
         role : utilisateur.role
       }
-      const jwt =await this.jwtService.sign(payload);
+      const jwt =await this.jwtService.sign(payload,{expiresIn:3600});
     // on retourne le token au lieu du données
     return {
       "access_token" : jwt
@@ -93,6 +93,9 @@ constructor(
   }
 */
 
+  async getUsersById(id: number): Promise<User[]> {
+    return await this.UserRepository.find({ where: { id } });
+  }
   create(createUserDto: RegisterUserDto) {
     return 'This action adds a new user';
   }

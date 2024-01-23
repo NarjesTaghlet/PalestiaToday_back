@@ -18,22 +18,26 @@ export class ArticleController {
     return this.articleService.create(createArticleDto);
   }
 
-  @UseGuards(JwtAuthGuard)
+
   @Get()
   findAll() {
     return this.articleService.getArticles();
   }
 
   @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.articleService.findOne(+id);
+  findById(@Param('id') id : string){
+    return this.articleService.findArticleById(+id);
   }
 
+
+  @Roles(Role_userEnum.ADMIN)
+  @UseGuards(JwtAuthGuard,RoleGuard)
   @Patch(':id')
   update(@Param('id') id: string, @Body() updateArticleDto: UpdateArticleDto) {
-    return this.articleService.update(+id, updateArticleDto);
+    return this.articleService.updateArticle(+id, updateArticleDto);
   }
-
+  @Roles(Role_userEnum.ADMIN)
+  @UseGuards(JwtAuthGuard,RoleGuard)
   @Delete(':id')
   remove(@Param('id') id: string) {
     return this.articleService.remove(+id);
