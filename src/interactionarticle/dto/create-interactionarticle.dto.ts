@@ -1,1 +1,5 @@
-export class CreateInteractionarticleDto {}
+export class CreateInteractionarticleDto {
+
+
+
+}

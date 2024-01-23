@@ -104,8 +104,8 @@ constructor(
     return `This action returns all user`;
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} user`;
+  async findOne(id: number) {
+    return await this.UserRepository.findOneBy({ id: id });
   }
 
   update(id: number, updateUserDto: LoginCredentialsDto) {

@@ -42,6 +42,10 @@ export class ArticleService {
     return `This action updates a #${id} article`;
   }
 
+  async findOne(id: number) {
+    return await this.ArticleRepository.findOneBy({ id: id });
+  }
+
   async updateArticle(id: number, article: UpdateArticleDto): Promise<Article> {
     //On récupére le article d'id id et ensuite on remplace les anciennes valeurs de cet article
     // par ceux passé en paramètre
