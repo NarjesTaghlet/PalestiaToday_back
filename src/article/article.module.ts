@@ -5,8 +5,9 @@ import {Article} from "./entities/article.entity";
 import {TypeOrmModule} from "@nestjs/typeorm" ;
 import {UserService} from "../user/user.service";
 import {UserModule} from "../user/user.module";
+import {Interactionarticle} from "../interactionarticle/entities/interactionarticle.entity";
 @Module({
-  imports :[TypeOrmModule.forFeature([Article])],
+  imports :[TypeOrmModule.forFeature([Article,Interactionarticle])],
   controllers: [ArticleController],
   providers: [ArticleService],
   exports: [ArticleService],

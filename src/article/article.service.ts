@@ -5,6 +5,8 @@ import {InjectRepository} from "@nestjs/typeorm";
 import {Article} from "./entities/article.entity";
 import {Repository} from "typeorm";
 import {UserService} from "../user/user.service";
+import {Interactionarticle} from "../interactionarticle/entities/interactionarticle.entity";
+import {InteractionarticleService} from "../interactionarticle/interactionarticle.service";
 
 
 @Injectable()
@@ -13,6 +15,8 @@ export class ArticleService {
   constructor(
       @InjectRepository(Article)
       private readonly ArticleRepository : Repository<Article>,
+     @InjectRepository(Interactionarticle)
+      private  readonly InteractionRepository : Repository<Interactionarticle>
       //private userService : UserService
   ) {}
 
@@ -39,7 +43,7 @@ export class ArticleService {
   }
 
   update(id: number, updateArticleDto: UpdateArticleDto) {
-    return `This action updates a #${id} article`;
+    return this.ArticleRepository.update(id,updateArticleDto);
   }
 
   async findOne(id: number) {
@@ -59,13 +63,19 @@ export class ArticleService {
     }
     //sauvgarder la nouvelle entité donc le nouveau cv
     else{
+
       return await this.ArticleRepository.save(newArticle);
 
     }
 
   }
   async remove(id: number) {
-    return await this.ArticleRepository.delete(id);
+    return await this.ArticleRepository.softDelete(id);
+
+  }
+
+  async restore(id:number) {
+    return await this.ArticleRepository.restore(id);
   }
   async findArticleById(id: number) {
     const article = await this.findOneArticle(id);
@@ -73,6 +83,33 @@ export class ArticleService {
       throw new NotFoundException(`L'article d'id ${id} n'existe pas`);
     }
     return article;
+  }
+
+
+  async getDeletedArticles(): Promise<Article[]> {
+    return this.ArticleRepository
+        .createQueryBuilder('article')
+        .withDeleted()
+        .where('article.deletedAt IS NOT NULL')
+        .getMany();
+
+  }
+
+
+  async restoreArticle(articleId: number): Promise<void> {
+    const article = await this.ArticleRepository.findOne({ where: { id: articleId }, withDeleted: true });
+
+    if (article) {
+      await this.ArticleRepository.restore(articleId);
+
+      // Restore the associated Interactionarticle entities
+      const interactions = await this.InteractionRepository.find({ where: { id: articleId }, withDeleted: true });
+      await Promise.all(interactions.map(async (interaction) => {
+       // await this.InteractionRepository.restore(interaction);
+        await this.InteractionRepository.restore(interaction)
+      }));
+    }
+
   }
 
 

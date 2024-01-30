@@ -9,7 +9,7 @@ export class LoginCredentialsDto extends PartialType(RegisterUserDto) {
     username : string
 
     @IsNotEmpty()
-    @MinLength(6,{ message: errorMessages.MinError(6) })
+    @MinLength(4,{ message: errorMessages.MinError(4) })
     password : string
 
 

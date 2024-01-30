@@ -1,4 +1,4 @@
-import {IS_NOT_EMPTY, isNotEmpty, IsNotEmpty, IsString} from 'class-validator';
+import {IS_NOT_EMPTY, isNotEmpty, IsNotEmpty, IsString, MinLength} from 'class-validator';
 import {errorMessages} from "../../generics/error_messages";
 
 export class AddArticleDto {

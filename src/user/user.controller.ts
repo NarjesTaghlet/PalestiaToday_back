@@ -21,10 +21,21 @@ export class UserController {
     return this.userService.login(credentials);
   }
 
-  @Get(':id')
-  findAll(id : number) {
-    return this.userService.getUsersById(id);
+  @Get('restore/:id')
+  restoreuser(id : number) {
+    return this.userService.restoreuser(id);
   }
+
+  @Get(':id')
+  find(id : number) {
+    return this.userService.getUserById(id);
+  }
+  @Get('')
+  findAll() {
+    return this.userService.findAll();
+  }
+
+
 
   /*@Get(':id')
   findOne(@Param('id') id: string) {
@@ -37,9 +48,11 @@ export class UserController {
   }
 
   @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.userService.remove(+id);
+  SoftDelete(@Param('id') id: string) {
+    return this.userService.softDelete(+id);
   }
+
+
 
 
 

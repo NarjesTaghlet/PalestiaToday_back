@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import {Controller, Get, Post, Body, Patch, Param, Delete, Req} from '@nestjs/common';
 import { InteractionarticleService } from './interactionarticle.service';
 import { CreateInteractionarticleDto } from './dto/create-interactionarticle.dto';
 import { UpdateInteractionarticleDto } from './dto/update-interactionarticle.dto';
@@ -83,7 +83,7 @@ export class InteractionarticleController {
   async ajouterCommentaire(
       @Param('idArticle') idArticle: number,
       @Param('idVisiteur') idVisiteur: number,
-      @Body('contenu') contenu: string
+      @Body('contenu') contenu: string,
   ) {
     return this.interactionarticleService.ajouterCommentaire(idArticle, idVisiteur, contenu);
   }
@@ -101,10 +101,29 @@ export class InteractionarticleController {
   async addlike(
       @Param('idArticle') idArticle: number,
       @Param('idVisiteur') idVisiteur: number,
-      @Body('like') like: ReactionType
+      @Body() createDto: Omit<CreateInteractionarticleDto, 'article_id' | 'user_id'>
   ) {
-    return this.interactionarticleService.addLike(idArticle, idVisiteur,like);
+    const fullCreateDto = {
+      ...createDto,
+      article_id: idArticle,
+      user_id: idVisiteur
+    };
+    return await this.interactionarticleService.addLike(fullCreateDto);
   }
 
+
+  @Post('dislike/:idArticle/:idVisiteur')
+  async addDislike(
+      @Param('idArticle') idArticle: number,
+      @Param('idVisiteur') idVisiteur: number,
+      @Body() createDto: Omit<CreateInteractionarticleDto, 'article_id' | 'user_id'>
+  ) {
+    const fullCreateDto = {
+      ...createDto,
+      article_id: idArticle,
+      user_id: idVisiteur
+    };
+    return this.interactionarticleService.addDislike(fullCreateDto);
+  }
 
 }

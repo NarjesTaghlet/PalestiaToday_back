@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import {Injectable, NotFoundException, Req} from '@nestjs/common';
 import { CreateInteractionarticleDto } from './dto/create-interactionarticle.dto';
 import { UpdateInteractionarticleDto } from './dto/update-interactionarticle.dto';
 import { Interactionarticle } from './entities/interactionarticle.entity';
@@ -44,7 +44,7 @@ export class InteractionarticleService {
     return await this.InteractionRepository.save(Interactionarticle);
   }
 
-  async ajouterCommentaire(idArticle: number, idVisiteur: number, contenu: string) {
+  async ajouterCommentaire(idArticle: number, idVisiteur: number, contenu: string ) {
     const article = await this.articleService.findOne( idArticle );
     const auteurCommentaire = await this.userService.findOne(idVisiteur);
 
@@ -55,14 +55,24 @@ export class InteractionarticleService {
       throw new NotFoundException('Visiteur non trouvé');
     }
 
-    const commentaire = this.InteractionRepository.create({
+
+   /* const commentaire = this.InteractionRepository.create({
       commentaire: contenu,
       article: article,
       user: auteurCommentaire
     });
 
-    return this.InteractionRepository.save(commentaire);
-  }
+    return this.InteractionRepository.save(commentaire);*/
+
+      const newInteraction = this.InteractionRepository.create({
+        article,
+        user: auteurCommentaire,
+        commentaire : contenu
+      });
+      await this.InteractionRepository.save(newInteraction);
+    }
+
+
 
 //-------------------------------------------------------------------------------------------//
   async addNote(idArticle: number, idVisiteur: number, note: number) {
@@ -97,7 +107,7 @@ export class InteractionarticleService {
   }
 
 
-  async addLike(idArticle: number, idVisiteur: number, reaction : ReactionType) {
+  /*async addLike(idArticle: number, idVisiteur: number, reaction : ReactionType) {
     const article = await this.articleService.findOne(idArticle);
     const utilisateur = await this.userService.findOne(idVisiteur);
 
@@ -126,21 +136,56 @@ export class InteractionarticleService {
       });
       await this.InteractionRepository.save(newInteraction);
     }
+  }*/
+
+  async addLike(createDto: CreateInteractionarticleDto) {
+    const { commentaire, reaction, note, article_id, user_id } = createDto;
+
+    const article = await this.articleService.findOne(article_id);
+    const utilisateur = await this.userService.findOne(user_id);
+
+    if (!article) {
+      throw new NotFoundException('Article non trouvé');
+    }
+    if (!utilisateur) {
+      throw new NotFoundException('Utilisateur non trouvé');
+    }
+
+    let existingInteraction = await this.InteractionRepository.findOne({
+      where: {
+        article: { id: article_id },
+        user: { id: user_id },
+        reaction: Not(IsNull())// Find an interaction with an existing note
+      }
+    });
+
+    if (existingInteraction) {
+      existingInteraction.reaction = reaction;
+      await this.InteractionRepository.save(existingInteraction);
+    } else {
+      const newInteraction = this.InteractionRepository.create({
+        reaction,
+        article,
+        user: utilisateur
+      });
+      await this.InteractionRepository.save(newInteraction);
+    }
   }
 
   async getCommentsByArticleId(idArticle: number): Promise<{id: number, commentaire: string}[]> {
     const interactions = await this.InteractionRepository.find({
       where: { article: { id: idArticle }, commentaire: Not(IsNull()) },
-      relations: ['article']
+      relations: ['article','user']
     });
 
     if (!interactions) {
       throw new NotFoundException('Comments not found for the article');
     }
-
     return interactions.map(interaction => ({
       id: interaction.id,
-      commentaire: interaction.commentaire
+      //id_user : interaction.user.id,
+      commentaire: interaction.commentaire,
+      username : interaction.user.username
     }));
   }
 
@@ -159,6 +204,8 @@ export class InteractionarticleService {
       note: interaction.note
     }));
   }
+
+
 
   async getReactionsByArticleId(idArticle: number): Promise<{id: number, reaction: ReactionType}[]> {
     const interactions = await this.InteractionRepository.find({
@@ -224,8 +271,11 @@ export class InteractionarticleService {
         reaction: ReactionType.LIKE
       }
     });
+    console.log("interactions",interactions)
     return interactions.length; // Total number of likes
   }
+
+
 
   async getDislikes(): Promise<number> {
     const interactions = await this.InteractionRepository.find({
@@ -234,6 +284,42 @@ export class InteractionarticleService {
       }
     });
     return interactions.length; // Total number of dislikes
+  }
+
+
+
+  async addDislike(createDto: CreateInteractionarticleDto): Promise<any> {
+    const { article_id, user_id, reaction } = createDto;
+
+    const existingInteraction = await this.InteractionRepository.findOne({
+      where: {
+        article: { id: article_id },
+        user: { id: user_id },
+        reaction: Not(IsNull())
+      }
+    });
+
+    if (existingInteraction) {
+      // Update existing interaction if found
+      await this.InteractionRepository.update(existingInteraction.id, { reaction });
+    } else {
+      // Create a new interaction if none exists
+      const newInteraction = this.InteractionRepository.create({
+        article: { id: article_id },
+        user: { id: user_id },
+        reaction
+      });
+      await this.InteractionRepository.save(newInteraction);
+    }
+
+    // You can return relevant data or success message
+    return { message: 'Dislike added successfully' };
+  }
+
+
+  async restoreinteraction(id:number){
+   return await this.InteractionRepository.restore({ article: { id: id } });
+
   }
 
 

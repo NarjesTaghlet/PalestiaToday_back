@@ -67,6 +67,7 @@ constructor(
     if(hashedPassword === utilisateur.password)
     {
       const payload={
+        id : utilisateur.id,
         username,
         email : utilisateur.email,
         role : utilisateur.role
@@ -93,15 +94,23 @@ constructor(
   }
 */
 
-  async getUsersById(id: number): Promise<User[]> {
+  async getUserById(id: number): Promise<User[]> {
+    console.log(await this.UserRepository.find({ where: { id } }))
     return await this.UserRepository.find({ where: { id } });
+
   }
+
+  async restoreuser(id : number){
+    return await this.UserRepository.restore(id);
+  }
+
+
   create(createUserDto: RegisterUserDto) {
     return 'This action adds a new user';
   }
 
   findAll() {
-    return `This action returns all user`;
+    return this.UserRepository.find();
   }
 
   async findOne(id: number) {
@@ -112,12 +121,13 @@ constructor(
     return `This action updates a #${id} user`;
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} user`;
-  }
-
 
   isAdmin(user) {
     return user.role === Role_userEnum.ADMIN ;
+  }
+
+
+  async softDelete(id : number){
+    return await this.UserRepository.softDelete(id);
   }
 }

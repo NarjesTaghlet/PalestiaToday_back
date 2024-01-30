@@ -8,13 +8,14 @@ export class Article extends TimestampEntities {
     id:number
 @Column()
     title:string
-@Column()
+@Column({length : 10000})
     description:string
 
 
 
   //relation entre article et interactionarticle
-    @OneToMany(() => Interactionarticle, (interaction) => interaction.article)
+    //{ cascade: true } ppour supprimer lkol
+    @OneToMany(() => Interactionarticle, (interaction) => interaction.article,{ cascade: ['soft-remove'],onDelete:"CASCADE" })
     interactions: Interactionarticle[];
 
 }

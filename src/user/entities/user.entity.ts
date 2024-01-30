@@ -35,7 +35,7 @@ export class User extends  TimestampEntities{
     role : string
 
     //un utiisateur peut avoir plusieurs interactions avec un article (un abonneé peut réagir)
-    @OneToMany(() => Interactionarticle, (interaction) => interaction.user)
+    @OneToMany(() => Interactionarticle, (interaction) => interaction.user,{cascade : true})
     interactions: Interactionarticle[];
 
 
