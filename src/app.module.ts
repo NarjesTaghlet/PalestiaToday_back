@@ -9,6 +9,7 @@ import {User} from "./user/entities/user.entity";
 import { InteractionarticleModule } from './interactionarticle/interactionarticle.module';
 import {Interactionarticle} from "./interactionarticle/entities/interactionarticle.entity";
 import {ConfigModule} from "@nestjs/config";
+import { MailModule } from './mail/mail.module';
 import * as dotenv from 'dotenv';
 import * as process from "process";
 
@@ -28,7 +29,8 @@ dotenv.config()
     }), InteractionarticleModule,
       ConfigModule.forRoot({
           isGlobal: true,
-      })
+      }),
+      MailModule
   ],
   controllers: [AppController],
   providers: [AppService],

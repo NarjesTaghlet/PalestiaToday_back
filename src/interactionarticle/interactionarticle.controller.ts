@@ -18,9 +18,19 @@ export class InteractionarticleController {
     return this.interactionarticleService.findAll();
   }
 
+  @Get('reaction/:idArticle/:idUser')
+  getReaction(@Param('idArticle') idArticle: number, @Param('idUser') idUser: number,) {
+    return this.interactionarticleService.getReactionByArticleandUser(idArticle, idUser);
+  }
+
   @Get('comment/:idArticle')
   getComments(@Param('idArticle') idArticle: number) {
     return this.interactionarticleService.getCommentsByArticleId(idArticle);
+  }
+
+  @Get('note/:idArticle/:idUser')
+  getNotesByuser(@Param('idArticle') idArticle: number, @Param('idUser') idUser: number,) {
+    return this.interactionarticleService.getNotesByArticleandUser(idArticle, idUser);
   }
 
   @Get('note/:idArticle')

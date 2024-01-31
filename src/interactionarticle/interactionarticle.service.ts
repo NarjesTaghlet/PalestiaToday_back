@@ -206,6 +206,22 @@ export class InteractionarticleService {
   }
 
 
+  async getNotesByArticleandUser(idArticle: number , idUser: number): Promise<{ note: number}[]> {
+
+    const interactions = await this.InteractionRepository.find({
+      where: { article: { id: idArticle }, user: {id: idUser} , note: Not(0) },
+      relations: ['article']
+    });
+
+    if (!interactions) {
+      throw new NotFoundException('Comments not found for the article');
+    }
+
+    return interactions.map(interaction => ({
+      note: interaction.note
+    }));
+  }
+
 
   async getReactionsByArticleId(idArticle: number): Promise<{id: number, reaction: ReactionType}[]> {
     const interactions = await this.InteractionRepository.find({
@@ -222,6 +238,24 @@ export class InteractionarticleService {
       reaction: interaction.reaction
     }));
   }
+
+  async getReactionByArticleandUser(idArticle: number , idUser: number): Promise<{ reaction: ReactionType}[]> {
+
+    const interactions = await this.InteractionRepository.find({
+      where: { article: { id: idArticle }, user: {id: idUser} , reaction: Not(IsNull()) },
+      relations: ['article']
+    });
+
+    if (!interactions) {
+      throw new NotFoundException('Comments not found for the article');
+    }
+
+    return interactions.map(interaction => ({
+      reaction: interaction.reaction
+    }));
+  }
+
+
 
   async calculateGeneralNoteForArticle(idArticle: number): Promise<number> {
     const interactions = await this.InteractionRepository.find({
@@ -271,7 +305,6 @@ export class InteractionarticleService {
         reaction: ReactionType.LIKE
       }
     });
-    console.log("interactions",interactions)
     return interactions.length; // Total number of likes
   }
 
