@@ -1,4 +1,4 @@
-<<<<<<< HEAD
+
 <p align="center">
   <a href="http://nestjs.com/" target="blank"><img src="https://nestjs.com/img/logo-small.svg" width="200" alt="Nest Logo" /></a>
 </p>
@@ -25,7 +25,8 @@
 
 ## Description
 
-[Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
+Notre projet offre une source centralisée d'articles et d'actualités sur la guerre en Palestine.
+
 
 ## Installation
 
@@ -74,4 +75,3 @@ Nest is an MIT-licensed open source project. It can grow thanks to the sponsors 
 Nest is [MIT licensed](LICENSE).
 =======
 # PalestiaToday
->>>>>>> ac19c13caac6e92cf3059a31794b8c6b3c830761
